@@ -1,8 +1,14 @@
 package web
 
 import (
+	"bytes"
+	"encoding/json"
+	"net/http"
 	"net/http/httptest"
+	"path/filepath"
 	"testing"
+
+	"ikmanbrowser/internal/calls"
 )
 
 func TestDetailBackURLPreservesSafeListURL(t *testing.T) {
@@ -53,5 +59,37 @@ func TestParseSearchParamsHandlesCheckboxPairs(t *testing.T) {
 	}
 	if params.CalledFilter != "hide" {
 		t.Fatalf("CalledFilter = %q, want hide", params.CalledFilter)
+	}
+}
+
+func TestCalledStatesReturnsCurrentLocalState(t *testing.T) {
+	store, err := calls.Open(filepath.Join(t.TempDir(), "calls.json"))
+	if err != nil {
+		t.Fatalf("calls.Open() error = %v", err)
+	}
+	if _, err := store.Mark("old-ad", "Old", []string{"0770000000"}, true); err != nil {
+		t.Fatalf("Mark() error = %v", err)
+	}
+	server := NewServer(nil, Config{CallStore: store})
+
+	body := bytes.NewBufferString(`{"items":[{"slug":"old-ad","phone":"0770000000"},{"slug":"new-ad","phone":"+94 77 0000000"}]}`)
+	r := httptest.NewRequest(http.MethodPost, "/api/called-states", body)
+	w := httptest.NewRecorder()
+	server.calledStates(w, r)
+
+	if w.Code != http.StatusOK {
+		t.Fatalf("status = %d, want 200, body %s", w.Code, w.Body.String())
+	}
+	var response struct {
+		States map[string]calls.State `json:"states"`
+	}
+	if err := json.Unmarshal(w.Body.Bytes(), &response); err != nil {
+		t.Fatalf("response JSON error = %v", err)
+	}
+	if !response.States["old-ad"].Called {
+		t.Fatalf("old-ad Called = false, want true")
+	}
+	if !response.States["new-ad"].CalledBefore {
+		t.Fatalf("new-ad CalledBefore = false, want true")
 	}
 }

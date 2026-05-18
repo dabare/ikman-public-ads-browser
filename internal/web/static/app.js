@@ -43,6 +43,16 @@
     cell.innerHTML = `${calledBefore ? '<span class="calltag">Called before</span>' : ""}<span class="phone">${escapeHTML(phone)}</span>`;
   }
 
+  function setCalledBeforeTag(cell, calledBefore) {
+    if (!cell || !cell.dataset.phoneValue) return;
+    const existing = cell.querySelector(".calltag");
+    if (calledBefore && !existing) {
+      cell.insertAdjacentHTML("afterbegin", '<span class="calltag">Called before</span>');
+    } else if (!calledBefore && existing) {
+      existing.remove();
+    }
+  }
+
   function applyCalledState(row, called) {
     if (!row) return;
     row.classList.toggle("is-called", called);
@@ -55,6 +65,42 @@
     if ((mode === "hide" && called) || (mode === "only" && !called)) {
       row.remove();
       updateShownCount();
+    }
+  }
+
+  function visibleCallItems() {
+    return Array.from(document.querySelectorAll("tr[data-row-slug]")).map((row) => {
+      const phoneCell = row.querySelector("[data-phone-value]");
+      return {
+        slug: row.dataset.rowSlug || "",
+        phone: phoneCell?.dataset.phoneValue || "",
+      };
+    }).filter((item) => item.slug);
+  }
+
+  function applyCallStates(states) {
+    for (const row of document.querySelectorAll("tr[data-row-slug]")) {
+      const state = states[row.dataset.rowSlug];
+      if (!state) continue;
+      applyCalledState(row, boolValue(state.called));
+      setCalledBeforeTag(row.querySelector("[data-phone-value]"), boolValue(state.calledBefore));
+    }
+  }
+
+  async function syncVisibleCallStates() {
+    const items = visibleCallItems();
+    if (items.length === 0) return;
+    try {
+      const res = await fetch("/api/called-states", {
+        method: "POST",
+        headers: {"Accept": "application/json", "Content-Type": "application/json"},
+        body: JSON.stringify({items}),
+      });
+      if (!res.ok) throw new Error(`HTTP ${res.status}`);
+      const data = await res.json();
+      if (data.states) applyCallStates(data.states);
+    } catch {
+      // The changed row has already been updated; this sync only keeps peer rows fresh.
     }
   }
 
@@ -262,6 +308,7 @@
       if (data.phone) {
         renderPhone(phoneCell, data.phone, boolValue(data.calledBefore));
       }
+      await syncVisibleCallStates();
       if (row) removeIfFilteredOut(row, called);
     } catch {
       input.checked = !requested;

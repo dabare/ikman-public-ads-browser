@@ -90,6 +90,7 @@ func (s *Server) Routes() http.Handler {
 	mux.Handle("/static/", http.StripPrefix("/static/", http.FileServer(http.FS(staticFS))))
 	mux.HandleFunc("/", s.home)
 	mux.HandleFunc("/api/ads", s.ads)
+	mux.HandleFunc("/api/called-states", s.calledStates)
 	mux.HandleFunc("/api/called/", s.called)
 	mux.HandleFunc("/api/phone/", s.phone)
 	mux.HandleFunc("/api/preview/", s.preview)
@@ -293,6 +294,32 @@ func (s *Server) called(w http.ResponseWriter, r *http.Request) {
 		"calledBeforeNumbers": state.CalledBeforeNumbers,
 		"phone":               strings.Join(phones, ", "),
 	})
+}
+
+func (s *Server) calledStates(w http.ResponseWriter, r *http.Request) {
+	if r.Method != http.MethodPost {
+		http.Error(w, "method not allowed", http.StatusMethodNotAllowed)
+		return
+	}
+	var request struct {
+		Items []struct {
+			Slug  string `json:"slug"`
+			Phone string `json:"phone"`
+		} `json:"items"`
+	}
+	_ = json.NewDecoder(r.Body).Decode(&request)
+
+	states := map[string]calls.State{}
+	for _, item := range request.Items {
+		slug := strings.TrimSpace(item.Slug)
+		if slug == "" {
+			continue
+		}
+		states[slug] = s.callState(slug, calls.SplitPhones(item.Phone))
+	}
+
+	w.Header().Set("Content-Type", "application/json; charset=utf-8")
+	_ = json.NewEncoder(w).Encode(map[string]any{"states": states})
 }
 
 func (s *Server) preview(w http.ResponseWriter, r *http.Request) {
