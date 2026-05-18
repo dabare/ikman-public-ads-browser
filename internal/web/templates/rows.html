@@ -1,0 +1,16 @@
+{{define "ad_rows"}}
+{{range .Ads}}
+  <tr class="{{if .Called}}is-called{{end}}" data-row-slug="{{.Slug}}">
+    <td class="thumbcell">{{if .ThumbURL}}<img src="{{.ThumbURL}}" alt="" loading="lazy">{{else}}<span class="noimg">No image</span>{{end}}</td>
+    <td><a class="title" href="{{detailURL .Slug $.ReturnURL}}">{{.Title}}</a><div class="meta">{{.Category.Name}} {{if .Details}}- {{.Details}}{{end}}</div></td>
+    <td class="price">{{.Price}}</td>
+    <td class="calledcell"><label class="called-toggle"><input type="checkbox" data-called-slug="{{.Slug}}" data-called-title="{{.Title}}" {{checked .Called}}> Called</label></td>
+    {{if .Phone}}<td class="phonecell" data-phone-value="{{.Phone}}">{{if .CalledBefore}}<span class="calltag">Called before</span>{{end}}<span class="phone">{{.Phone}}</span></td>{{else if $.Params.LoadPhones}}<td class="loading" data-phone-slug="{{.Slug}}">Loading</td>{{else}}<td class="muted" data-phone-value="">Unavailable</td>{{end}}
+    <td>{{.Location}}</td>
+    <td>{{.TimeStamp}}</td>
+    <td><a class="smallbtn detailbtn" href="{{detailURL .Slug $.ReturnURL}}" data-preview-slug="{{.Slug}}">Details</a></td>
+  </tr>
+{{else}}
+  <tr data-empty-row="true"><td colspan="8" class="empty">No ads matched these filters.</td></tr>
+{{end}}
+{{end}}

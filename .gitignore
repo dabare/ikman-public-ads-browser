@@ -1,0 +1,30 @@
+# Local runtime data
+/data/
+*.db
+*.sqlite
+*.sqlite3
+
+# Build outputs
+/dist/
+/bin/
+/ikman-browser
+/ikman-browser-*
+*.test
+coverage.out
+coverage.html
+
+# Local environment and logs
+.env
+.env.*
+!.env.example
+*.log
+
+# Temporary files
+/tmp/
+*.tmp
+
+# OS and editor files
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/

@@ -1,0 +1,59 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>{{.Detail.Ad.Title}}</title>
+  <link rel="stylesheet" href="/static/app.css">
+</head>
+<body>
+<header class="topbar">
+  <a class="brand" href="/ads">ikman table</a>
+  <nav><a href="{{.BackURL}}">Back to table</a><a href="{{.Detail.Ad.PublicURL}}" target="_blank" rel="noreferrer">Source</a></nav>
+</header>
+<main class="detail">
+  {{if .Error}}<div class="error">{{.Error}}</div>{{end}}
+  <section class="hero">
+    <div class="gallery">
+      {{range .Detail.Ad.GalleryURLs}}<a href="{{.}}" target="_blank" rel="noreferrer"><img src="{{.}}" alt="" loading="lazy"></a>{{else}}<div class="noimg big">No images</div>{{end}}
+    </div>
+    <aside class="card">
+      <h1>{{.Detail.Ad.Title}}</h1>
+      <div class="bigprice">{{.Detail.Ad.PriceText}}</div>
+      <dl>
+        <dt>Photos</dt><dd>{{.Detail.Ad.PhotoCount}}</dd>
+        <dt>Telephone</dt><dd class="{{phoneCSS .Detail.Ad.PhoneText}}">{{.Detail.Ad.PhoneText}}</dd>
+        <dt>Seller</dt><dd>{{if .Detail.Ad.ContactCard.Name}}{{.Detail.Ad.ContactCard.Name}}{{else}}{{.Detail.Ad.Shop.Name}}{{end}}</dd>
+        <dt>Location</dt><dd>{{.Detail.Ad.Location.Name}} {{if .Detail.Ad.Area.Name}}({{.Detail.Ad.Area.Name}}){{end}}</dd>
+        <dt>Category</dt><dd>{{.Detail.Ad.Category.Name}}</dd>
+        <dt>Added</dt><dd>{{.Detail.Ad.Timestamp}}</dd>
+        <dt>Status</dt><dd>{{.Detail.Ad.Status}}</dd>
+      </dl>
+    </aside>
+  </section>
+  <section class="split">
+    <article>
+      <h2>Description</h2>
+      <p>{{nl2br .Detail.Ad.Description}}</p>
+    </article>
+    <aside>
+      <h2>Properties</h2>
+      <table class="kv">
+        <tbody>{{range .Detail.Ad.Properties}}<tr><th>{{.Label}}</th><td>{{.Value}}</td></tr>{{else}}<tr><td>No structured properties.</td></tr>{{end}}</tbody>
+      </table>
+    </aside>
+  </section>
+  <section>
+    <h2>Similar ads</h2>
+    <div class="similar">
+      {{range .Detail.SimilarAds}}
+      <a href="{{detailURL .Slug $.BackURL}}">
+        {{if .ThumbURL}}<img src="{{.ThumbURL}}" alt="">{{end}}
+        <span>{{.Title}}</span><strong>{{.Price}}</strong>
+      </a>
+      {{else}}<div class="empty">No similar ads in public payload.</div>{{end}}
+    </div>
+  </section>
+</main>
+</body>
+</html>

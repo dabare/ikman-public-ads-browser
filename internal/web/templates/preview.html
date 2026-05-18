@@ -1,0 +1,32 @@
+{{define "ad_preview"}}
+<article class="preview-card">
+  <div class="preview-head">
+    <div>
+      <h3>{{.Detail.Ad.Title}}</h3>
+      <div class="preview-price">{{.Detail.Ad.PriceText}}</div>
+    </div>
+    <span>{{.Detail.Ad.PhotoCount}} photos</span>
+  </div>
+  <div class="preview-gallery">
+    {{range .Detail.Ad.GalleryURLs}}<img src="{{.}}" alt="" loading="lazy">{{else}}<div class="noimg">No image</div>{{end}}
+  </div>
+  <dl class="preview-facts">
+    <dt>Telephone</dt><dd class="{{phoneCSS .Detail.Ad.PhoneText}}">{{.Detail.Ad.PhoneText}}</dd>
+    <dt>Seller</dt><dd>{{if .Detail.Ad.ContactCard.Name}}{{.Detail.Ad.ContactCard.Name}}{{else}}{{.Detail.Ad.Shop.Name}}{{end}}</dd>
+    <dt>Location</dt><dd>{{.Detail.Ad.Location.Name}} {{if .Detail.Ad.Area.Name}}({{.Detail.Ad.Area.Name}}){{end}}</dd>
+    <dt>Category</dt><dd>{{.Detail.Ad.Category.Name}}</dd>
+    <dt>Added</dt><dd>{{.Detail.Ad.Timestamp}}</dd>
+    <dt>Status</dt><dd>{{.Detail.Ad.Status}}</dd>
+  </dl>
+  <section class="preview-section">
+    <h4>Description</h4>
+    <p>{{nl2br .Detail.Ad.Description}}</p>
+  </section>
+  <section class="preview-section">
+    <h4>Properties</h4>
+    <table class="preview-kv">
+      <tbody>{{range .Detail.Ad.Properties}}<tr><th>{{.Label}}</th><td>{{.Value}}</td></tr>{{else}}<tr><td>No structured properties.</td></tr>{{end}}</tbody>
+    </table>
+  </section>
+</article>
+{{end}}

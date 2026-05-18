@@ -1,0 +1,30 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Discovered public surfaces</title>
+  <link rel="stylesheet" href="/static/app.css">
+</head>
+<body>
+<header class="topbar">
+  <a class="brand" href="/ads">ikman table</a>
+  <nav><a href="/ads">Table</a></nav>
+</header>
+<main class="doc">
+  <h1>Public surfaces used</h1>
+  <p>This app uses public, server-rendered pages and the JSON already embedded in those pages. It does not call login, edit, delete, report, or protected phone reveal endpoints.</p>
+  <table class="kv">
+    <tbody>
+      <tr><th>Listings</th><td><code>{{.BaseURL}}/en/ads</code> and category/location variants like <code>/en/ads/colombo/mobile-phones</code>.</td></tr>
+      <tr><th>Search</th><td><code>/en/ads?query=...</code> for user-entered keyword searches.</td></tr>
+      <tr><th>Details</th><td><code>{{.BaseURL}}/en/ad/{slug}</code> for public ad detail, images, seller name, and phone numbers present in page data.</td></tr>
+      <tr><th>Images</th><td><code>https://i.ikman-st.com/{slug}/{image-id}/{width}/{height}/cropped.jpg</code> and <code>fitted.jpg</code>.</td></tr>
+      <tr><th>API root observed</th><td>The page sets <code>window.apiURL = "https://api.ikman.lk"</code>, but this app avoids private/authenticated API calls.</td></tr>
+    </tbody>
+  </table>
+  <p>Respectful-use guardrails: the client has a timeout, in-memory cache, and outbound request interval. Use it for user-driven browsing, not bulk harvesting.</p>
+</main>
+</body>
+</html>
+

@@ -1,0 +1,77 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>ikman public ads table</title>
+  <link rel="stylesheet" href="/static/app.css">
+  <script src="/static/app.js" defer></script>
+</head>
+<body>
+<header class="topbar">
+  <a class="brand" href="/ads">ikman table</a>
+  <nav><a href="/endpoints">Endpoints</a><a href="{{.Result.SourceURL}}" target="_blank" rel="noreferrer">Source</a></nav>
+</header>
+<main class="shell">
+  <aside class="filters">
+    <form method="get" action="/ads">
+      <label>Keyword<input name="q" value="{{.Params.Query}}" placeholder="iphone, car, land"></label>
+      <div class="grid2">
+        <label>Location<select name="location">{{range .LocationOptions}}<option value="{{.Value}}" {{selected $.Params.LocationSlug .Value}}>{{.Label}}</option>{{end}}</select></label>
+        <label>Category<select name="category">{{range .CategoryOptions}}<option value="{{.Value}}" {{selected $.Params.CategorySlug .Value}}>{{.Label}}</option>{{end}}</select></label>
+      </div>
+      <div class="grid2">
+        <label>Seller/shop<input name="seller" value="{{.Params.Seller}}" placeholder="dealer or shop"></label>
+        <label>Min photos<input name="min_images" inputmode="numeric" value="{{if .Params.MinImages}}{{.Params.MinImages}}{{end}}" placeholder="0"></label>
+      </div>
+      <div class="grid2">
+        <label>Min price<input name="min_price" inputmode="numeric" value="{{if .Params.MinPrice}}{{.Params.MinPrice}}{{end}}"></label>
+        <label>Max price<input name="max_price" inputmode="numeric" value="{{if .Params.MaxPrice}}{{.Params.MaxPrice}}{{end}}"></label>
+      </div>
+      <div class="grid2">
+        <label>Type<select name="ad_type">{{range .AdTypeOptions}}<option value="{{.Value}}" {{selected $.Params.AdType .Value}}>{{.Label}}</option>{{end}}</select></label>
+        <label>Sort<select name="sort">{{range .SortOptions}}<option value="{{.Value}}" {{selected $.Params.Sort .Value}}>{{.Label}}</option>{{end}}</select></label>
+      </div>
+      <label>Called<select name="called">{{range .CalledOptions}}<option value="{{.Value}}" {{selected $.Params.CalledFilter .Value}}>{{.Label}}</option>{{end}}</select></label>
+      <div class="checks">
+        <label><input type="checkbox" name="member" value="1" {{checked .Params.MemberOnly}}> Member</label>
+        <label><input type="checkbox" name="verified" value="1" {{checked .Params.VerifiedOnly}}> Verified</label>
+        <label><input type="checkbox" name="featured" value="1" {{checked .Params.FeaturedOnly}}> Featured</label>
+        <label><input type="checkbox" name="images" value="1" {{checked .Params.WithImagesOnly}}> Images</label>
+        <label><input type="checkbox" name="dealer" value="1" {{checked .Params.AuthDealerOnly}}> Dealer</label>
+        <label><input type="checkbox" name="doorstep" value="1" {{checked .Params.DoorstepOnly}}> Doorstep</label>
+        <label><input type="checkbox" name="free_delivery" value="1" {{checked .Params.FreeDelivery}}> Free delivery</label>
+        <label><input type="checkbox" name="top" value="1" {{checked .Params.TopOnly}}> Top</label>
+        <label><input type="checkbox" name="urgent" value="1" {{checked .Params.UrgentOnly}}> Urgent</label>
+        <label><input type="checkbox" name="extra_images" value="1" {{checked .Params.ExtraImages}}> Extra photos</label>
+        <input type="hidden" name="phones" value="0">
+        <label><input type="checkbox" name="phones" value="1" {{checked .Params.LoadPhones}}> Phones</label>
+      </div>
+      <button class="primary" type="submit">Apply filters</button>
+    </form>
+  </aside>
+  <section class="content">
+    <div class="summary">
+      <div><strong id="shown-count">{{len .Ads}}</strong> shown {{if .Result.TotalText}}of {{.Result.TotalText}}{{end}}</div>
+      <div class="muted">{{.PhoneNotice}} Fetch {{.Duration}}</div>
+    </div>
+    {{if .Error}}<div class="error">{{.Error}}</div>{{end}}
+    <div class="tablewrap">
+      <table>
+        <thead>
+          <tr>
+            <th>Ad</th><th>Title</th><th>Price</th><th>Called</th><th>Telephone</th><th>Location</th><th>Added</th><th>More</th>
+          </tr>
+        </thead>
+        <tbody id="ads-body">
+          {{template "ad_rows" .}}
+        </tbody>
+      </table>
+    </div>
+    <div id="load-more" class="loadmore" data-next="{{.LoadMoreURL}}">
+      <span class="spinner"></span><span>Loading more ads</span>
+    </div>
+  </section>
+</main>
+</body>
+</html>
